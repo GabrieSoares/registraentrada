@@ -1,10 +1,7 @@
 package Persistencia;
 
-import java.awt.HeadlessException;
-import java.beans.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
@@ -14,14 +11,14 @@ import javax.swing.JOptionPane;
  */
 public class Conexao {
 
-    static Connection conexao;
+    public static Connection conexao;
 
     public Conexao() {
+        System.out.println("Conecetando");
         try {
-            Class.forName("org.gjt.mm.mysql.Driver");
-
-            conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/registrador", "root", "");
-
+            Class.forName("com.mysql.jdbc.Driver");
+            conexao = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/registrador", "root", "zaqwsx");
+            System.out.println("Conctado");
         } catch (ClassNotFoundException | SQLException ex) {
             JOptionPane.showMessageDialog(null, "Ocorreu um Erro ao Conectar no BD: " + ex.getMessage(), "Conectar", JOptionPane.ERROR_MESSAGE);
         }

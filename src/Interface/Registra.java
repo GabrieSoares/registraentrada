@@ -378,6 +378,7 @@ public class Registra extends javax.swing.JFrame {
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code here:
+        limpaCampos();
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -429,6 +430,7 @@ public class Registra extends javax.swing.JFrame {
         } else {
             JOptionPane.showMessageDialog(null, "Entrada não Exluida!");
         }
+        limpaCampos();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     public void limpaCampos() {

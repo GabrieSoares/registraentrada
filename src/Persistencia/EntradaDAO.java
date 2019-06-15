@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 /**
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 public class EntradaDAO {
 
     private Connection conn;
-    private PreparedStatement selecionarEntradas = null;
+    private Statement selecionarEntradas;
     private PreparedStatement incluirRegistro;
     private PreparedStatement excluirRegistro;
 
@@ -28,20 +29,7 @@ public class EntradaDAO {
         conn = conexao.getConexao();
         incluirRegistro = conn.prepareStatement("INSERT INTO registrador.entrada (data_entrada, hora_entrada, nome_Empresa, motorista, placa, colaborador, local_destino,data_saida,hora_saida)VALUES (?, ?, ?, ?, ?, ?, ?,?,?);");
         excluirRegistro = conn.prepareStatement("DELETE FROM registrador.entrada WHERE  id_entrada=?;");
-        selecionarEntradas = conn.prepareStatement("SELECT \n"
-                + "	e.id_entrada,\n"
-                + "	e.data_entrada,\n"
-                + "	e.hora_entrada,\n"
-                + "	e.nome_Empresa,\n"
-                + "	e.motorista,\n"
-                + "	e.placa,\n"
-                + "	e.colaborador,\n"
-                + "	e.local_destino,\n"
-                + "	e.data_saida,\n"
-                + "	e.hora_saida\n"
-                + "FROM entrada e\n"
-                + "WHERE e.data_entrada = ? or e.nome_Empresa like ? OR  e.motorista LIKE ? \n"
-                + "	or e.placa = ? or e.colaborador LIKE ? or e.data_saida = ? ORDER BY e.data_saida IS NULL;");
+        selecionarEntradas = conn.createStatement();
     }
 
     public int incluirEntrada(EntradaBeans entradaBeans) throws SQLException {
@@ -69,13 +57,19 @@ public class EntradaDAO {
     
     public ArrayList selecionarEntradas(String data_entrada, String empresa, String motorista, String placa, String colaborador, String data_final) throws SQLException {
         ArrayList listaEntradas = new ArrayList();
+        String where = new String();
         if (!data_entrada.isEmpty()) {
-            selecionarEntradas.setString(1, data_entrada);
-        } else {
-            selecionarEntradas.setString(1, "null");
+            where = "e.data_entrada ='"+ data_entrada+"'";
+        }
+        if (!empresa.isEmpty()) {
+            where += "and e.nome_Empresa like '%"+ empresa+"%'";
+        } 
+        if (!motorista.isEmpty()) {
+            where += " and e.motorista like '%"+ motorista + "%'";
         }
 
-        if (!empresa.isEmpty()) {
+
+        /*if (!empresa.isEmpty()) {
             selecionarEntradas.setString(2, "%" + empresa + "%");
         } else {
             selecionarEntradas.setString(2, "null");
@@ -100,8 +94,12 @@ public class EntradaDAO {
             selecionarEntradas.setString(6, data_final);
         } else {
             selecionarEntradas.setString(6, "null");
-        }
-        ResultSet resultados = selecionarEntradas.executeQuery();
+        }*/
+        String consulta = "SELECT e.id_entrada, e.data_entrada, e.hora_entrada, e.nome_Empresa, e.motorista,\n" +
+                                    "e.placa, e.colaborador, e.local_destino, e.data_saida, e.hora_saida\n" +
+                           "FROM entrada e WHERE " + where;
+        System.out.println(consulta);
+        ResultSet resultados = selecionarEntradas.executeQuery(consulta);
         System.out.println("teste " + resultados);
         while (resultados.next()) {
             EntradaBeans entradaBeans = new EntradaBeans();
