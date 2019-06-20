@@ -14,11 +14,9 @@ public class Conexao {
     public static Connection conexao;
 
     public Conexao() {
-        System.out.println("Conecetando");
         try {
             Class.forName("com.mysql.jdbc.Driver");
             conexao = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/registrador", "root", "zaqwsx");
-            System.out.println("Conctado");
         } catch (ClassNotFoundException | SQLException ex) {
             JOptionPane.showMessageDialog(null, "Ocorreu um Erro ao Conectar no BD: " + ex.getMessage(), "Conectar", JOptionPane.ERROR_MESSAGE);
         }

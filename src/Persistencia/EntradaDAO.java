@@ -22,14 +22,18 @@ public class EntradaDAO {
     private Connection conn;
     private Statement selecionarEntradas;
     private PreparedStatement incluirRegistro;
+    private PreparedStatement alterarRegistro;
     private PreparedStatement excluirRegistro;
+    private PreparedStatement SelecionarEntrada;
 
     public EntradaDAO() throws SQLException {
         Conexao conexao = new Conexao();
         conn = conexao.getConexao();
         incluirRegistro = conn.prepareStatement("INSERT INTO registrador.entrada (data_entrada, hora_entrada, nome_Empresa, motorista, placa, colaborador, local_destino,data_saida,hora_saida)VALUES (?, ?, ?, ?, ?, ?, ?,?,?);");
+        alterarRegistro = conn.prepareStatement("UPDATE entrada SET data_entrada = ?, hora_entrada = ?, nome_Empresa = ?, motorista = ?, placa = ?, colaborador = ?, local_destino = ?, data_saida = ?, hora_saida =? WHERE id_entrada = ?;");
         excluirRegistro = conn.prepareStatement("DELETE FROM registrador.entrada WHERE  id_entrada=?;");
         selecionarEntradas = conn.createStatement();
+        SelecionarEntrada = conn.prepareStatement("Select * from entrada where id_entrada = ?");
     }
 
     public int incluirEntrada(EntradaBeans entradaBeans) throws SQLException {
@@ -47,6 +51,23 @@ public class EntradaDAO {
         //System.out.println("Incluiu " + incluiu);
         return incluiu;
     }
+    
+    public int alterarEntrada(EntradaBeans entradaBeans) throws SQLException {
+        int alterou;
+        alterarRegistro.setString(1, entradaBeans.getData_entrada());
+        alterarRegistro.setString(2, entradaBeans.getHora_entrada());
+        alterarRegistro.setString(3, entradaBeans.getNome_empresa());
+        alterarRegistro.setString(4, entradaBeans.getMotorista());
+        alterarRegistro.setString(5, entradaBeans.getPlaca());
+        alterarRegistro.setString(6, entradaBeans.getColaborador());
+        alterarRegistro.setString(7, entradaBeans.getLocal_destino());
+        alterarRegistro.setString(8, entradaBeans.getData_saida());
+        alterarRegistro.setString(9, entradaBeans.getHora_saida());
+        alterarRegistro.setInt(10, entradaBeans.getId_Entrada());
+        alterou = alterarRegistro.executeUpdate();
+        //System.out.println("Incluiu " + incluiu);
+        return alterou;
+    }
 
     public int excluirEntrada(EntradaBeans entradaBeans) throws SQLException {
         int excluiu;
@@ -54,18 +75,40 @@ public class EntradaDAO {
         excluiu = excluirRegistro.executeUpdate();
         return excluiu;
     }
-    
-    public ArrayList selecionarEntradas(String data_entrada, String empresa, String motorista, String placa, String colaborador, String data_final) throws SQLException {
+
+    public EntradaBeans selecionarEntrada(String idEntrada) throws SQLException {
+        EntradaBeans entradaBeans = new EntradaBeans();
+        SelecionarEntrada.setString(1, idEntrada);
+        ResultSet resultado = SelecionarEntrada.executeQuery();
+        if (resultado.next()) {
+            entradaBeans.setId_Entrada(resultado.getInt(1));
+            entradaBeans.setData_entrada(resultado.getString(2));
+            entradaBeans.setHora_entrada(resultado.getString(3));
+            entradaBeans.setNome_empresa(resultado.getString(4));
+            entradaBeans.setMotorista(resultado.getString(5));
+            entradaBeans.setPlaca(resultado.getString(6));
+            entradaBeans.setColaborador(resultado.getString(7));
+            entradaBeans.setLocal_destino(resultado.getString(8));
+            entradaBeans.setData_saida(resultado.getString(9));
+            entradaBeans.setHora_saida(resultado.getString(10));
+        }
+        return entradaBeans;
+    }
+
+    public ArrayList selecionarEntradas(int periodo, String dataInicial, String dataFinal, String empresa, String motorista, String placa, String colaborador) throws SQLException {
         ArrayList listaEntradas = new ArrayList();
         String where = new String();
-        if (!data_entrada.isEmpty()) {
-            where = "e.data_entrada ='"+ data_entrada+"'";
+        if (periodo == 0) {
+            if (!dataInicial.isEmpty()) {
+                where = "e.data_entrada between '" + dataInicial + "' and '" + dataFinal + "' ";
+            }
         }
+
         if (!empresa.isEmpty()) {
-            where += "and e.nome_Empresa like '%"+ empresa+"%'";
-        } 
+            where += "and e.nome_Empresa like '%" + empresa + "%'";
+        }
         if (!motorista.isEmpty()) {
-            where += " and e.motorista like '%"+ motorista + "%'";
+            where += " and e.motorista like '%" + motorista + "%'";
         }
 
 
@@ -95,12 +138,11 @@ public class EntradaDAO {
         } else {
             selecionarEntradas.setString(6, "null");
         }*/
-        String consulta = "SELECT e.id_entrada, e.data_entrada, e.hora_entrada, e.nome_Empresa, e.motorista,\n" +
-                                    "e.placa, e.colaborador, e.local_destino, e.data_saida, e.hora_saida\n" +
-                           "FROM entrada e WHERE " + where;
-        System.out.println(consulta);
+        String consulta = "SELECT e.id_entrada, e.data_entrada, e.hora_entrada, e.nome_Empresa, e.motorista,\n"
+                + "e.placa, e.colaborador, e.local_destino, e.data_saida, e.hora_saida\n"
+                + "FROM entrada e WHERE " + where;
+        System.out.println("Consulta: " + consulta);
         ResultSet resultados = selecionarEntradas.executeQuery(consulta);
-        System.out.println("teste " + resultados);
         while (resultados.next()) {
             EntradaBeans entradaBeans = new EntradaBeans();
             entradaBeans.setId_Entrada(resultados.getInt(1));

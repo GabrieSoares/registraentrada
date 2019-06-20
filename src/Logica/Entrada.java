@@ -16,12 +16,12 @@ import javax.swing.JOptionPane;
  * @author gabri
  */
 public class Entrada {
-    
-    public Entrada(){
-        
+
+    public Entrada() {
+
     }
-    
-    public int cadastrarEntrada(EntradaBeans  entradaBeans) {
+
+    public int cadastrarEntrada(EntradaBeans entradaBeans) {
         int cadastrou = 0;
         try {
             EntradaDAO EntradaDAO = new EntradaDAO();
@@ -31,8 +31,18 @@ public class Entrada {
         }
         return cadastrou;
     }
-    
-    public int excluirEntrada(EntradaBeans  entradaBeans) {
+    public int alterarEntrada(EntradaBeans entradaBeans) {
+        int alterou = 0;
+        try {
+            EntradaDAO EntradaDAO = new EntradaDAO();
+            alterou = EntradaDAO.alterarEntrada(entradaBeans);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Ocorreu um Erro ao Cadastrar a Entrada: " + ex.getMessage(), "Cadastrar Entrada", JOptionPane.ERROR_MESSAGE);
+        }
+        return alterou;
+    }
+
+    public int excluirEntrada(EntradaBeans entradaBeans) {
         int excluiu = 0;
         try {
             EntradaDAO EntradaDAO = new EntradaDAO();
@@ -42,12 +52,23 @@ public class Entrada {
         }
         return excluiu;
     }
-    
-     public List selecionarEntradas(String data_entrada, String empresa, String motorista, String placa, String colaborador, String data_final) {
+
+    public EntradaBeans selecionarEntrada(String idEntrada) {
+        EntradaBeans entradaBeans = new EntradaBeans();
+        try {
+            EntradaDAO entradaDAO = new EntradaDAO();
+            entradaBeans = entradaDAO.selecionarEntrada(idEntrada);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Ocorreu um Erro ao Listar a Categoria: " + ex.getMessage(), "Listar Categoria Titulo", JOptionPane.ERROR_MESSAGE);
+        }
+        return entradaBeans;
+    }
+
+    public List selecionarEntradas(int periodo, String dataInicial, String dataFinal, String empresa, String motorista, String placa, String colaborador) {
         List listaEntradas = null;
         try {
             EntradaDAO entradaDAO = new EntradaDAO();
-            listaEntradas = entradaDAO.selecionarEntradas(data_entrada, empresa, motorista, placa, colaborador, data_final);
+            listaEntradas = entradaDAO.selecionarEntradas(periodo, dataInicial, dataFinal, empresa, motorista, placa, colaborador);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Ocorreu um Erro ao Listar as Entradas: " + ex.getMessage(), "Listar Entradas", JOptionPane.ERROR_MESSAGE);
         }

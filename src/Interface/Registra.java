@@ -34,6 +34,7 @@ public class Registra extends javax.swing.JFrame {
     String diaFormatado = sdfData.format(hora);
     EntradaBeans entradaBeans = new EntradaBeans();
     Entrada entrada = new Entrada();
+    Boolean NovoRegistro = false;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -78,6 +79,11 @@ public class Registra extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle(".::Registra::.");
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                formComponentShown(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(153, 153, 153));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -123,7 +129,11 @@ public class Registra extends javax.swing.JFrame {
             }
         });
 
-        jFormattedTextField3.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("UUU-####"))));
+        try {
+            jFormattedTextField3.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("UUU-####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
         jFormattedTextField3.setToolTipText("");
 
         try {
@@ -146,6 +156,11 @@ public class Registra extends javax.swing.JFrame {
         jLabel11.setText("ID:");
 
         jTextField1.setEditable(false);
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -368,17 +383,94 @@ public class Registra extends javax.swing.JFrame {
     }//GEN-LAST:event_jFormattedTextField2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // Botão para Gravar
+        //Botão Gravar
+        int resultado;
+        if (jTextField1.getText().isEmpty() & jTextField5.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Impossivel realizar operação - Valores em branco!");
+        } else {
+            EntradaBeans entradaBeansAux = new EntradaBeans();
+            entradaBeansAux = entrada.selecionarEntrada(jTextField1.getText());
+            entradaBeans.setData_entrada(jFormattedTextField1.getText());
+            entradaBeans.setHora_entrada(jFormattedTextField2.getText());
+            entradaBeans.setNome_empresa(jTextField5.getText());
+            entradaBeans.setMotorista(jTextField6.getText());
+            entradaBeans.setPlaca(jFormattedTextField3.getText());
+            entradaBeans.setColaborador(jTextField8.getText());
+            entradaBeans.setLocal_destino(jTextField9.getText());
+            entradaBeans.setData_saida(jFormattedTextField4.getText());
+            entradaBeans.setHora_saida(jFormattedTextField5.getText());
+
+            if (NovoRegistro) {
+                resultado = entrada.cadastrarEntrada(entradaBeans);
+                if (resultado == 1) {
+                    JOptionPane.showMessageDialog(null, "Dados inclusos com sucesso");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Falha na inclusão de dados");
+                }
+            } else {
+                entradaBeans.setId_Entrada(Integer.parseInt(jTextField1.getText()));
+                resultado = entrada.alterarEntrada(entradaBeans);
+                if (resultado == 1) {
+                    JOptionPane.showMessageDialog(null, "Dados alterados com sucesso");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Falha na alteração de dados");
+
+                }
+            }
+
+        }
+        jButton1.setEnabled(true);
+        jButton4.setEnabled(false);
+        jButton7.setEnabled(false);
+        jButton5.setEnabled(false);
+        jButton3.setEnabled(false);
+        jButton2.setEnabled(true);
+        limpaCampos();
+
+    }
+
+    private void formComponentShown(java.awt.event.ComponentEvent evt) {
+        //Evento Dialog
+        jFormattedTextField1.setEnabled(false);
+        jFormattedTextField2.setEnabled(false);
+        jFormattedTextField3.setEnabled(false);
+        jFormattedTextField4.setEnabled(false);
+        jFormattedTextField5.setEnabled(false);
+        jTextField1.setEnabled(false);
+        jTextField5.setEnabled(false);
+        jTextField6.setEnabled(false);
+        jTextField8.setEnabled(false);
+        jTextField9.setEnabled(false);
+
+    }
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
+        //Alterar
+        jTextField1.setEditable(true);
+        jTextField1.grabFocus();
+        //jTextField1.setBackground();
+        jButton1.setEnabled(false);
+        jButton2.setEnabled(true);
+        jButton3.setEnabled(false);
+        jButton4.setEnabled(true);
+        jButton5.setEnabled(false);
+        jButton6.setEnabled(false);
+        NovoRegistro = false;
 
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // Novo
-
+        liberaCampos();
+        NovoRegistro = true;
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code here:
-        limpaCampos();
+        NovoRegistro = false;
+        liberaCampos();
+
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -432,6 +524,14 @@ public class Registra extends javax.swing.JFrame {
         }
         limpaCampos();
     }//GEN-LAST:event_jButton5ActionPerformed
+/*
+    private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formComponentShown
+*/
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
 
     public void limpaCampos() {
         jFormattedTextField1.setText("");
@@ -444,6 +544,19 @@ public class Registra extends javax.swing.JFrame {
         jTextField6.setText("");
         jTextField8.setText("");
         jTextField9.setText("");
+    }
+
+    public void liberaCampos() {
+        jFormattedTextField1.setEnabled(true);
+        jFormattedTextField2.setEnabled(true);
+        jFormattedTextField3.setEnabled(true);
+        jFormattedTextField4.setEnabled(true);
+        jFormattedTextField5.setEnabled(true);
+        jTextField1.setEnabled(true);
+        jTextField5.setEnabled(true);
+        jTextField6.setEnabled(true);
+        jTextField8.setEnabled(true);
+        jTextField9.setEnabled(true);
     }
 
     /**
